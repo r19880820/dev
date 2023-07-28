@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>NAGAドリル（リーチ判断編）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    #imageContainer {
+      margin-top: 20px;
+      position: relative; /* 画像と選択肢ボックスを重ねるために必要 */
+    }
+    img {
+      /* 画像を80%のサイズに縮小する */
+      width: 80%;
+      max-width: 1920px;
+      max-height: auto;
+    }
+    /* ○と×を絶対位置指定 */
+    #result {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 300px; /* 大きさを調整 */
+    }
+
+    /* 色の指定 */
+    #result.correct {
+      color: green; /* 〇を緑色に指定 */
+    }
+
+    #result.incorrect {
+      color: red; /* ×を赤色に指定 */
+    }
+    
+    /* 選択肢ボックスのスタイル */
+    #selectContainer {
+      position: absolute; /* 選択肢ボックスの親要素を絶対位置指定 */
+      top: 90px; /* 画像上に90pxの余白を持たせる */
+      left: 20%; /* 画像の左側に配置 */
+      transform: translateX(-50%); /* 中央に配置 */
+      width: 200px;
+      display: none; /* スタート時は非表示にする */
+    }
+    
+    /* 選択肢ボックスのスタイル */
+    #selectBox {
+      width: 100%;
+      font-size: 30px; /* 大きさを調整 */
+    }
+    /* 選択肢ラジオボタンのスタイル */
+    #selectForm {
+      position: absolute; /* 選択肢ボックスの親要素を絶対位置指定 */
+      top: 90px; /* 画像上に90pxの余白を持たせる */
+      left: 30%; /* 画像の左側に配置 */
+      transform: translateX(-50%); /* 中央に配置 */
+      width: 300px;
+      display: none; /* スタート時は非表示にする */
+    }
+
+
+    /* 次へボタンのスタイル */
+    #nextButton {
+//      text-align: center;
+	  right:20%
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>NAGAドリル（リーチ判断編）</h1>
+  <div>
+	  <button id="startButton">スタート</button>
+	  <button id="nextButton" style="display: none;">次へ</button>
+  </div>
+
+  <div id="imageContainer"></div>
+  <div id="result" class=""></div>
+   <!-- 選択肢ラジオボタン -->
+  <form id="selectForm" style="display: none;">
+    <input type="radio" id="reach" name="choice" value="リーチ">
+    <label for="reach">リーチ</label>
+    <input type="radio" id="dama" name="choice" value="ダマ">
+    <label for="dama">ダマ</label>
+  </form>
+  <!-- 結果表示用の要素 -->
+  <div id="resultSummary" style="display: none;"></div>
+  
+  <script>
+   
+    const startButton = document.getElementById('startButton'); //スタートボタン
+    const nextButton = document.getElementById('nextButton'); //次へボタン
+    let currentIndex = 0; //画像ペアの配列内でのインデックス
+    let currentImage = 0; //画像ぺアの中で、何番目の配列か、（0か1のみ）
+    const selectContainer = document.getElementById('selectContainer');
+    const resultElement = document.getElementById('result');
+    
+    const imagePairs = [
+      { image1: 'images/image00000.jpg', image2: 'images/image00001.jpg', correct: 'リーチ' },
+      { image1: 'images/image00002.jpg', image2: 'images/image00003.jpg', correct: 'リーチ' },
+      { image1: 'images/image00004.jpg', image2: 'images/image00005.jpg', correct: 'リーチ' },
+      { image1: 'images/image00012.jpg', image2: 'images/image00013.jpg', correct: 'ダマ' },
+      { image1: 'images/image00022.jpg', image2: 'images/image00023.jpg', correct: 'リーチ' },
+      { image1: 'images/image00024.jpg', image2: 'images/image00025.jpg', correct: 'ダマ' },
+      { image1: 'images/image00026.jpg', image2: 'images/image00027.jpg', correct: 'ダマ' },
+      { image1: 'images/image00028.jpg', image2: 'images/image00029.jpg', correct: 'ダマ' },
+      { image1: 'images/image00030.jpg', image2: 'images/image00031.jpg', correct: 'ダマ' },
+      { image1: 'images/image00032.jpg', image2: 'images/image00033.jpg', correct: 'リーチ' },
+      { image1: 'images/image00034.jpg', image2: 'images/image00035.jpg', correct: 'ダマ' },
+      { image1: 'images/image00036.jpg', image2: 'images/image00037.jpg', correct: 'リーチ' },
+      { image1: 'images/image00038.jpg', image2: 'images/image00039.jpg', correct: 'ダマ' },
+      { image1: 'images/image00040.jpg', image2: 'images/image00041.jpg', correct: 'ダマ' },
+      { image1: 'images/image00042.jpg', image2: 'images/image00043.jpg', correct: 'ダマ' },
+      { image1: 'images/image00044.jpg', image2: 'images/image00045.jpg', correct: 'リーチ' },
+      { image1: 'images/image00046.jpg', image2: 'images/image00047.jpg', correct: 'リーチ' },
+      { image1: 'images/image00048.jpg', image2: 'images/image00049.jpg', correct: 'リーチ' },
+      { image1: 'images/image00050.jpg', image2: 'images/image00051.jpg', correct: 'ダマ' },
+      { image1: 'images/image00052.jpg', image2: 'images/image00053.jpg', correct: 'ダマ' },
+      { image1: 'images/image00054.jpg', image2: 'images/image00055.jpg', correct: 'リーチ' },
+      { image1: 'images/image00056.jpg', image2: 'images/image00057.jpg', correct: 'ダマ' },
+      { image1: 'images/image00058.jpg', image2: 'images/image00059.jpg', correct: 'ダマ' },
+      { image1: 'images/image00060.jpg', image2: 'images/image00061.jpg', correct: 'リーチ' },
+      { image1: 'images/image00062.jpg', image2: 'images/image00063.jpg', correct: 'リーチ' },
+      { image1: 'images/image00064.jpg', image2: 'images/image00065.jpg', correct: 'ダマ' },
+      { image1: 'images/image00066.jpg', image2: 'images/image00067.jpg', correct: 'ダマ' },
+      { image1: 'images/image00068.jpg', image2: 'images/image00069.jpg', correct: 'リーチ' },
+      { image1: 'images/image00070.jpg', image2: 'images/image00071.jpg', correct: 'ダマ' },
+      { image1: 'images/image00072.jpg', image2: 'images/image00073.jpg', correct: 'リーチ' },
+      { image1: 'images/image00074.jpg', image2: 'images/image00075.jpg', correct: 'ダマ' },
+      { image1: 'images/image00077.jpg', image2: 'images/image00078.jpg', correct: 'リーチ' },
+      { image1: 'images/image00079.jpg', image2: 'images/image00080.jpg', correct: 'ダマ' },
+      { image1: 'images/image00081.jpg', image2: 'images/image00082.jpg', correct: 'リーチ' },
+      { image1: 'images/image00083.jpg', image2: 'images/image00084.jpg', correct: 'ダマ' },
+      { image1: 'images/image00085.jpg', image2: 'images/image00086.jpg', correct: 'ダマ' },
+      { image1: 'images/image00087.jpg', image2: 'images/image00088.jpg', correct: 'ダマ' },
+      { image1: 'images/image00089.jpg', image2: 'images/image00090.jpg', correct: 'ダマ' },
+      { image1: 'images/image00091.jpg', image2: 'images/image00092.jpg', correct: 'ダマ' },
+      { image1: 'images/image00093.jpg', image2: 'images/image00094.jpg', correct: 'リーチ' },
+      { image1: 'images/image00095.jpg', image2: 'images/image00096.jpg', correct: 'リーチ' },
+      { image1: 'images/image00097.jpg', image2: 'images/image00098.jpg', correct: 'リーチ' },
+      { image1: 'images/image00099.jpg', image2: 'images/image00100.jpg', correct: 'ダマ' },
+      { image1: 'images/image00101.jpg', image2: 'images/image00102.jpg', correct: 'ダマ' },
+
+
+
+      // 他の画像ペアをここに追加
+    ];
+	// 正解数と問題数のカウント
+    let correctCount = 0; 
+	let totalCount = imagePairs.length;
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+    
+    // スタートボタン押下時の処理
+    startButton.addEventListener('click', () => {
+      // 画像ペアをランダムにシャッフル
+      shuffle(imagePairs);
+      currentIndex = 0;
+      // 画像ペア表示
+      showImage(currentIndex, currentImage);
+      startButton.style.display = 'none';		//スタートボタンは非表示
+      nextButton.style.display = 'inline-block';	//次へボタンを表示
+	  selectForm.style.display = 'block'; // スタート時に選択肢ラジオボタンを表示
+	  //正解数の初期化
+	  correctCount = 0; 
+    });
+
+	// 次へボタン押下時の処理
+	nextButton.addEventListener('click', () => {
+	  // 選択したオプションの値を取得
+      const selectedValue = document.querySelector('input[name="choice"]:checked').value;
+
+      // 正解判定
+      const currentPair = imagePairs[currentIndex];
+      const isCorrect = selectedValue === currentPair.correct;
+
+      // 判定結果を表示
+      resultElement.innerText = isCorrect ? '〇' : '×';
+      resultElement.classList.remove('correct', 'incorrect');
+      resultElement.classList.add(isCorrect ? 'correct' : 'incorrect');
+      
+      // 次の画像の表示準備
+      if (currentImage === 0) {
+		//表示している画像が、問題画像の場合、正解画像を表示
+	      currentImage++;
+       // ラジオボタンを非活性化
+          document.querySelectorAll('input[name="choice"]').forEach((radio) => {
+    	      radio.disabled = true; 
+      	    });
+      	    
+	      // 正解数をカウント
+		  if (isCorrect) {
+		    correctCount++;
+		  }
+      
+      } else {
+		//表示している画像が、正解画像の場合、問題画像を表示
+          currentImage = 0;
+		  currentIndex++;
+          resultElement.innerText = '';
+		    // ラジオボタンを活性化
+		    document.querySelectorAll('input[name="choice"]').forEach((radio) => {
+		      radio.disabled = false;
+		    });
+          
+	  }
+	  // 画像表示
+	  if (currentIndex < imagePairs.length) {
+	    imageContainer.innerHTML = '';
+	    showImage(currentIndex, currentImage);
+	  } else {
+	    alert('全問完了しました');
+	    currentIndex = -1;
+	    currentImage = 0;
+	    startButton.style.display = 'inline-block';
+	    nextButton.style.display = 'none';
+	    imageContainer.innerHTML = '';
+	    resultElement.innerText = '';
+        selectForm.style.display = 'none';
+        
+	    // 結果を表示
+	    const resultSummary = document.getElementById('resultSummary');
+	    resultSummary.style.display = 'block';
+	    resultSummary.innerText = `結果：${correctCount}/${totalCount} 正解`;
+	  }
+    });
+
+    
+    // 画像表示関数
+    function showImage(index, imageIndex) {
+      const currentPair = imagePairs[index];
+      const src = imageIndex === 0 ? currentPair.image1 : currentPair.image2;
+      const image = createImage(src);
+
+      imageContainer.innerHTML = '';
+      imageContainer.appendChild(image);
+    }
+    
+    function createImage(src) {
+      const img = document.createElement('img');
+      img.src = src;
+      return img;
+    }
+  </script>
+</body>
+</html>
