@@ -144,6 +144,22 @@
       { image1: 'images/image00097.jpg', image2: 'images/image00098.jpg', correct: 'リーチ' },
       { image1: 'images/image00099.jpg', image2: 'images/image00100.jpg', correct: 'ダマ' },
       { image1: 'images/image00101.jpg', image2: 'images/image00102.jpg', correct: 'ダマ' },
+      { image1: 'images/image00103.jpg', image2: 'images/image00104.jpg', correct: 'ダマ' },
+      { image1: 'images/image00105.jpg', image2: 'images/image00106.jpg', correct: 'リーチ' },
+      { image1: 'images/image00107.jpg', image2: 'images/image00108.jpg', correct: 'ダマ' },
+      { image1: 'images/image00109.jpg', image2: 'images/image00110.jpg', correct: 'リーチ' },
+      { image1: 'images/image00111.jpg', image2: 'images/image00112.jpg', correct: 'リーチ' },
+      { image1: 'images/image00113.jpg', image2: 'images/image00114.jpg', correct: 'ダマ' },
+      { image1: 'images/image00115.jpg', image2: 'images/image00116.jpg', correct: 'ダマ' },
+      { image1: 'images/image00117.jpg', image2: 'images/image00118.jpg', correct: 'ダマ' },
+      { image1: 'images/image00119.jpg', image2: 'images/image00120.jpg', correct: 'ダマ' },
+      { image1: 'images/image00121.jpg', image2: 'images/image00122.jpg', correct: 'リーチ' },
+      { image1: 'images/image00123.jpg', image2: 'images/image00124.jpg', correct: 'リーチ' },
+      { image1: 'images/image00125.jpg', image2: 'images/image00126.jpg', correct: 'ダマ' },
+      { image1: 'images/image00127.jpg', image2: 'images/image00128.jpg', correct: 'ダマ' },
+      { image1: 'images/image00129.jpg', image2: 'images/image00130.jpg', correct: 'ダマ' },
+      { image1: 'images/image00131.jpg', image2: 'images/image00132.jpg', correct: 'ダマ' },
+
 
 
 
@@ -213,8 +229,8 @@
 		    });
           
 	  }
-	  // 画像表示
-	  if (currentIndex < imagePairs.length) {
+	  // 画像表示 全部で10問
+	  if (currentIndex < 9) {
 	    imageContainer.innerHTML = '';
 	    showImage(currentIndex, currentImage);
 	  } else {
@@ -230,7 +246,7 @@
 	    // 結果を表示
 	    const resultSummary = document.getElementById('resultSummary');
 	    resultSummary.style.display = 'block';
-	    resultSummary.innerText = `結果：${correctCount}/${totalCount} 正解`;
+	    resultSummary.innerText = `結果：${correctCount}/10 正解`;
 	  }
     });
 
