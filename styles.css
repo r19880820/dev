@@ -1,0 +1,32 @@
+/* カードスタイルの共通スタイル */
+.card {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+}
+
+.card:hover {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* カードの選択状態によるスタイル */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ラジオボタンの非表示 */
+input[type="radio"] {
+  position: absolute;
+  left: -9999px;
+}
+
+/* ラジオボタン選択時のスタイル */
+input[type="radio"]:checked + .card {
+  background-color: #007bff;
+  color: #fff;
+}

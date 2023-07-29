@@ -3,6 +3,7 @@
 <head>
   <title>NAGAドリル（リーチ判断編）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="styles.css">
   <style>
     body {
       text-align: center;
@@ -15,8 +16,9 @@
     img {
       /* 画像を80%のサイズに縮小する */
       width: 80%;
+      height: auto;
       max-width: 1920px;
-      max-height: auto;
+      max-height: 100vh;
     }
     /* ○と×を絶対位置指定 */
     #result {
@@ -35,65 +37,75 @@
     #result.incorrect {
       color: red; /* ×を赤色に指定 */
     }
-    
-    /* 選択肢ボックスのスタイル */
-    #selectContainer {
-      position: absolute; /* 選択肢ボックスの親要素を絶対位置指定 */
-      top: 90px; /* 画像上に90pxの余白を持たせる */
-      left: 20%; /* 画像の左側に配置 */
-      transform: translateX(-50%); /* 中央に配置 */
-      width: 200px;
-      display: none; /* スタート時は非表示にする */
-    }
-    
-    /* 選択肢ボックスのスタイル */
-    #selectBox {
-      width: 100%;
-      font-size: 30px; /* 大きさを調整 */
-    }
-    /* 選択肢ラジオボタンのスタイル */
-    #selectForm {
-      position: absolute; /* 選択肢ボックスの親要素を絶対位置指定 */
-      top: 90px; /* 画像上に90pxの余白を持たせる */
-      left: 30%; /* 画像の左側に配置 */
-      transform: translateX(-50%); /* 中央に配置 */
-      width: 300px;
-      display: none; /* スタート時は非表示にする */
-    }
+	#selectContainer {
+	  display: flex;
+	  justify-content: center;
+	  
+	}
+	/* スタートボタンのスタイル */
+    #startButton {
+      width :150px;
+      max-height:50px;
 
-
+    }
     /* 次へボタンのスタイル */
     #nextButton {
-//      text-align: center;
-	  right:20%
-      margin-top: 20px;
+      width :150px;
+      max-height:50px;
     }
+	/* リーチカードのスタイル */
+	.reach-card {
+	  background-color: red;
+	  color: white;
+	  border: 2px solid #ccc; /* 枠線を設定 */
+	  border-radius: 10px;
+	  cursor: pointer; /* カーソルをポインターに変更（クリック可能な要素を示す） */
+	  transition: box-shadow 0.3s; /* 影の変化を滑らかにするトランジション */
+	}
+
+	/* ダマカードのスタイル */
+	.dama-card {
+	  background-color: green;
+	  color: white;
+	  border: 2px solid #ccc; /* 枠線を設定 */
+	  border-radius: 10px;
+	  cursor: pointer; /* カーソルをポインターに変更（クリック可能な要素を示す） */
+	  transition: box-shadow 0.3s; /* 影の変化を滑らかにするトランジション */
+	}
+	/* リーチとダマのカードにマウスが乗った際のスタイル */
+	#selectContainer .reach-card:hover,
+	#selectContainer .dama-card:hover {
+	  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 影を強く表示 */
+	}
   </style>
 </head>
 
 <body>
   <h1>NAGAドリル（リーチ判断編）</h1>
-  <div>
-	  <button id="startButton">スタート</button>
-	  <button id="nextButton" style="display: none;">次へ</button>
+  <div id>
+	  <button id="startButton" class="card">スタート</button>
+	  <button id="nextButton" style="display: none;" class="card">次へ</button>
+  </div>
+  <div id="selectContainer" style="display: none;">
+	  <!-- リーチとダマのラジオボタン -->
+	  <input type="radio" id="reach" name="choice" value="リーチ">
+	  <label for="reach" class="card reach-card " style="width: 200px;">リーチ</label>
+
+	  <input type="radio" id="dama" name="choice" value="ダマ">
+	  <label for="dama" class="card dama-card " style="width: 200px;">ダマ</label>
   </div>
 
   <div id="imageContainer"></div>
   <div id="result" class=""></div>
-   <!-- 選択肢ラジオボタン -->
-  <form id="selectForm" style="display: none;">
-    <input type="radio" id="reach" name="choice" value="リーチ">
-    <label for="reach">リーチ</label>
-    <input type="radio" id="dama" name="choice" value="ダマ">
-    <label for="dama">ダマ</label>
-  </form>
+
   <!-- 結果表示用の要素 -->
   <div id="resultSummary" style="display: none;"></div>
-  
+
   <script>
    
     const startButton = document.getElementById('startButton'); //スタートボタン
     const nextButton = document.getElementById('nextButton'); //次へボタン
+    const cards = document.querySelectorAll('.card');
     let currentIndex = 0; //画像ペアの配列内でのインデックス
     let currentImage = 0; //画像ぺアの中で、何番目の配列か、（0か1のみ）
     const selectContainer = document.getElementById('selectContainer');
@@ -169,87 +181,123 @@
     let correctCount = 0; 
 	let totalCount = imagePairs.length;
 
+	// ラジオボタンが選択された時の処理
+	cards.forEach(card => {
+	  card.addEventListener('click', () => {
+	    nextButton.disabled = false;
+	  });
+	});
+	// 画像ペアのシャッフル
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
       }
     }
-    
+	// 画像のプリロード
+	function preloadImages(imagePairs) {
+	  imagePairs.forEach(pair => {
+	    const img1 = new Image();
+	    img1.src = pair.image1;
+	    const img2 = new Image();
+	    img2.src = pair.image2;
+	  });
+	}
     // スタートボタン押下時の処理
     startButton.addEventListener('click', () => {
+	  //正解数の初期化
+	  correctCount = 0; 
+	  // 前回結果を非表示
+      resultSummary.style.display = 'none';
+      resultSummary.innerText =  ''
+    
       // 画像ペアをランダムにシャッフル
       shuffle(imagePairs);
       currentIndex = 0;
       // 画像ペア表示
       showImage(currentIndex, currentImage);
+
+      // リーチ、ダマのカードを画面上に表示
+      selectContainer.style.display = 'flex';
+
       startButton.style.display = 'none';		//スタートボタンは非表示
-      nextButton.style.display = 'inline-block';	//次へボタンを表示
-	  selectForm.style.display = 'block'; // スタート時に選択肢ラジオボタンを表示
-	  //正解数の初期化
-	  correctCount = 0; 
-	  // 前回結果を非表示
-      resultSummary.style.display = 'none';
+     // 画像のプリロードを実行
+      preloadImages(imagePairs);
+      
     });
 
 	// 次へボタン押下時の処理
 	nextButton.addEventListener('click', () => {
-	  // 選択したオプションの値を取得
-      const selectedValue = document.querySelector('input[name="choice"]:checked').value;
-
-      // 正解判定
-      const currentPair = imagePairs[currentIndex];
-      const isCorrect = selectedValue === currentPair.correct;
-
-      // 判定結果を表示
-      resultElement.innerText = isCorrect ? '〇' : '×';
-      resultElement.classList.remove('correct', 'incorrect');
-      resultElement.classList.add(isCorrect ? 'correct' : 'incorrect');
-      
-      // 次の画像の表示準備
-      if (currentImage === 0) {
-		//表示している画像が、問題画像の場合、正解画像を表示
-	      currentImage++;
-       // ラジオボタンを非活性化
-          document.querySelectorAll('input[name="choice"]').forEach((radio) => {
-    	      radio.disabled = true; 
-      	    });
-      	    
-	      // 正解数をカウント
-		  if (isCorrect) {
-		    correctCount++;
-		  }
-      
-      } else {
 		//表示している画像が、正解画像の場合、問題画像を表示
           currentImage = 0;
 		  currentIndex++;
           resultElement.innerText = '';
-		    // ラジオボタンを活性化
-		    document.querySelectorAll('input[name="choice"]').forEach((radio) => {
-		      radio.disabled = false;
-		    });
+	    // ラジオボタンのチェックを初期化
+	      document.querySelectorAll('input[name="choice"]').forEach((radio) => {
+		      radio.checked = false; 
+		  });
+	      // ラジオボタンを表示
+	      selectContainer.style.display = 'flex';
+		
+		  // 次へボタンを非表示
+          nextButton.style.display = 'none';
           
-	  }
-	  // 画像表示 全部で10問
-	  if (currentIndex < 9) {
-	    imageContainer.innerHTML = '';
-	    showImage(currentIndex, currentImage);
-	  } else {
-	    alert('全問完了しました');
-	    currentIndex = -1;
-	    currentImage = 0;
-	    startButton.style.display = 'inline-block';
-	    nextButton.style.display = 'none';
-	    imageContainer.innerHTML = '';
-	    resultElement.innerText = '';
-        selectForm.style.display = 'none';
-        
-	    // 結果を表示
-	    const resultSummary = document.getElementById('resultSummary');
-	    resultSummary.style.display = 'block';
-	    resultSummary.innerText = `結果：${correctCount}/10 正解`;
-	  }
+		  // 画像表示 全部で10問
+		  if (currentIndex < 10) {
+		    imageContainer.innerHTML = '';
+		    showImage(currentIndex, currentImage);
+		  } else {
+		    alert('全問完了しました');
+		    currentIndex = -1;
+		    currentImage = 0;
+		    startButton.style.display = 'inline-block';
+		    nextButton.style.display = 'none';
+		    imageContainer.innerHTML = '';
+		    resultElement.innerText = '';
+	        
+		    // 結果を表示
+		    const resultSummary = document.getElementById('resultSummary');
+		    selectContainer.style.display = 'none';
+
+		    resultSummary.style.display = 'block';
+		    resultSummary.innerText = `結果：${correctCount}/10 正解`;
+
+		  }
+	});
+	
+	// ラジオボタンが選択された時の処理
+	document.querySelectorAll('input[name="choice"]').forEach((radio) => {
+	  radio.addEventListener('change', () => {
+
+		  // 選択したオプションの値を取得
+	      const selectedValue = document.querySelector('input[name="choice"]:checked').value;
+
+	      // 正解判定
+	      const currentPair = imagePairs[currentIndex];
+	      const isCorrect = selectedValue === currentPair.correct;
+
+	      // 判定結果を表示
+	      resultElement.innerText = isCorrect ? '〇' : '×';
+	      resultElement.classList.remove('correct', 'incorrect');
+	      resultElement.classList.add(isCorrect ? 'correct' : 'incorrect');
+	      
+	      // 次の画像の表示準備
+		  //表示している画像が、問題画像の場合、正解画像を表示
+	      currentImage++;
+
+	      selectContainer.style.display = 'none';
+		  // 次へボタンを表示
+	      nextButton.style.display = 'inline-block';
+
+	      // 正解数をカウント
+		  if (isCorrect) {
+		    correctCount++;
+		  }
+		  // 画像を表示
+		  imageContainer.innerHTML = '';
+		  showImage(currentIndex, currentImage);
+
+		});
     });
 
     
