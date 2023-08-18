@@ -14,13 +14,57 @@ input[type="radio"]:checked + label {
   box-shadow: 0 0 5px #007bff; /* 選択時に枠線を表示 */
 }
 
+/* カード要素 */
 .card {
   padding: 10px;
   margin: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s;
-  max-width: 200px;
+  width: 150px;
   max-height: auto;
   border: 2px solid #ccc;
   border-radius: 5px;
 }
+
+/* custom-radioクラスのラジオボタンのカスタムスタイル */
+input.custom-radio[type="radio"] + label {
+    padding-left: 25px;
+    position: relative;
+}
+
+    input.custom-radio[type="radio"] + label::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 2px;
+        width: 10px;
+        height: 10px;
+        border: 2px solid #000;
+        border-radius: 50%;
+    }
+
+/* custom-radioクラスのラジオボタンが選択されたときのスタイル */
+input.custom-radio[type="radio"]:checked + label::before {
+    background-color: #000;
+}
+
+
+/*　見出し　*/
+.midashi{
+    text-align:left;
+}
+
+/*　選択肢　*/
+.selector{
+    justify-content:center;
+    display:flex;
+}
+/* コンテナクラス */
+.container {
+    border: 1px solid #000;
+    padding: 10px;
+    width:700px;
+    height:100px;
+    margin: 0 auto;
+}
+
